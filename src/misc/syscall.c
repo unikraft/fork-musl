@@ -19,3 +19,11 @@ long syscall(long n, ...)
 	va_end(ap);
 	return __syscall_ret(__syscall(n,a,b,c,d,e,f));
 }
+
+long (*__kernel_vsyscall)(long, long, long, long, long, long, long) = NULL;
+
+void uk_init_vsyscall(void) __attribute__((constructor));
+
+void uk_init_vsyscall(void) {
+	__kernel_vsyscall = __vdsosym("LINUX_2.6", "__kernel_vsyscall");
+}
