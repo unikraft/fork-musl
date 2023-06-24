@@ -27,33 +27,104 @@ hidden long __syscall_ret(unsigned long),
 	__syscall_cp(syscall_arg_t, syscall_arg_t, syscall_arg_t, syscall_arg_t,
 	             syscall_arg_t, syscall_arg_t, syscall_arg_t);
 
-#define __syscall1(n,a) __syscall1(n,__scc(a))
-#define __syscall2(n,a,b) __syscall2(n,__scc(a),__scc(b))
-#define __syscall3(n,a,b,c) __syscall3(n,__scc(a),__scc(b),__scc(c))
-#define __syscall4(n,a,b,c,d) __syscall4(n,__scc(a),__scc(b),__scc(c),__scc(d))
-#define __syscall5(n,a,b,c,d,e) __syscall5(n,__scc(a),__scc(b),__scc(c),__scc(d),__scc(e))
-#define __syscall6(n,a,b,c,d,e,f) __syscall6(n,__scc(a),__scc(b),__scc(c),__scc(d),__scc(e),__scc(f))
-#define __syscall7(n,a,b,c,d,e,f,g) __syscall7(n,__scc(a),__scc(b),__scc(c),__scc(d),__scc(e),__scc(f),__scc(g))
-
 #define __SYSCALL_NARGS_X(a,b,c,d,e,f,g,h,n,...) n
 #define __SYSCALL_NARGS(...) __SYSCALL_NARGS_X(__VA_ARGS__,7,6,5,4,3,2,1,0,)
 #define __SYSCALL_CONCAT_X(a,b) a##b
 #define __SYSCALL_CONCAT(a,b) __SYSCALL_CONCAT_X(a,b)
 #define __SYSCALL_DISP(b,...) __SYSCALL_CONCAT(b,__SYSCALL_NARGS(__VA_ARGS__))(__VA_ARGS__)
 
-#define __syscall(...) __SYSCALL_DISP(__syscall,__VA_ARGS__)
+extern long (*__kernel_vsyscall)(long, long, long, long, long, long, long);
+
+#define uk_syscall_0(syscall_nr) \
+({ \
+    unsigned long int resultvar; \
+    if (__builtin_expect(!!(__kernel_vsyscall), 1)) { \
+      resultvar = ((long(*)(long))__kernel_vsyscall)(syscall_nr); \
+    } else { \
+      resultvar = __syscall0(syscall_nr); \
+    } \
+    (long int) resultvar; \
+})
+
+#define uk_syscall_1(syscall_nr, a) \
+({ \
+    unsigned long int resultvar; \
+    if (__builtin_expect(!!(__kernel_vsyscall), 1)) { \
+      resultvar = ((long(*)(long, long))__kernel_vsyscall)(syscall_nr, __scc(a)); \
+    } else { \
+      resultvar = __syscall1(syscall_nr, __scc(a)); \
+    } \
+    (long int) resultvar; \
+})
+
+#define uk_syscall_2(syscall_nr, a, b) \
+({ \
+    unsigned long int resultvar; \
+    if (__builtin_expect(!!(__kernel_vsyscall), 1)) { \
+      resultvar = ((long(*)(long, long, long))__kernel_vsyscall)(syscall_nr, __scc(a), __scc(b)); \
+    } else { \
+      resultvar = __syscall2(syscall_nr, __scc(a), __scc(b)); \
+    } \
+    (long int) resultvar; \
+})
+
+#define uk_syscall_3(syscall_nr, a, b, c) \
+({ \
+    unsigned long int resultvar; \
+    if (__builtin_expect(!!(__kernel_vsyscall), 1)) { \
+      resultvar = ((long(*)(long, long, long, long))__kernel_vsyscall)(syscall_nr, __scc(a), __scc(b), __scc(c)); \
+    } else { \
+      resultvar = __syscall3(syscall_nr, __scc(a), __scc(b), __scc(c)); \
+    } \
+    (long int) resultvar; \
+})
+
+#define uk_syscall_4(syscall_nr, a, b, c, d) \
+({ \
+    unsigned long int resultvar; \
+    if (__builtin_expect(!!(__kernel_vsyscall), 1)) { \
+      resultvar = ((long(*)(long, long, long, long, long))__kernel_vsyscall)(syscall_nr, __scc(a), __scc(b), __scc(c), __scc(d)); \
+    } else { \
+      resultvar = __syscall4(syscall_nr,  __scc(a), __scc(b), __scc(c), __scc(d)); \
+    } \
+    (long int) resultvar; \
+})
+
+#define uk_syscall_5(syscall_nr, a, b, c, d, e) \
+({ \
+    unsigned long int resultvar; \
+    if (__builtin_expect(!!(__kernel_vsyscall), 1)) { \
+      resultvar = ((long(*)(long, long, long, long, long, long))__kernel_vsyscall)(syscall_nr, __scc(a), __scc(b), __scc(c), __scc(d), __scc(e)); \
+    } else { \
+      resultvar = __syscall5(syscall_nr, __scc(a), __scc(b), __scc(c), __scc(d), __scc(e)); \
+    } \
+    (long int) resultvar; \
+})
+
+#define uk_syscall_6(syscall_nr, a, b, c, d, e, f) \
+({ \
+    unsigned long int resultvar; \
+    if (__builtin_expect(!!(__kernel_vsyscall), 1)) { \
+      resultvar = ((long(*)(long, long, long, long, long, long, long))__kernel_vsyscall)(syscall_nr, __scc(a), __scc(b), __scc(c), __scc(d), __scc(e), __scc(f)); \
+    } else { \
+      resultvar = __syscall6(syscall_nr, __scc(a), __scc(b), __scc(c), __scc(d), __scc(e), __scc(f)); \
+    } \
+    (long int) resultvar; \
+})
+
+#define __syscall(...) __SYSCALL_DISP(uk_syscall_,__VA_ARGS__)
 #define syscall(...) __syscall_ret(__syscall(__VA_ARGS__))
 
 #define socketcall(nm,a,b,c,d,e,f) __syscall_ret(__socketcall(nm,a,b,c,d,e,f))
 #define socketcall_cp(nm,a,b,c,d,e,f) __syscall_ret(__socketcall_cp(nm,a,b,c,d,e,f))
 
-#define __syscall_cp0(n) (__syscall_cp)(n,0,0,0,0,0,0)
-#define __syscall_cp1(n,a) (__syscall_cp)(n,__scc(a),0,0,0,0,0)
-#define __syscall_cp2(n,a,b) (__syscall_cp)(n,__scc(a),__scc(b),0,0,0,0)
-#define __syscall_cp3(n,a,b,c) (__syscall_cp)(n,__scc(a),__scc(b),__scc(c),0,0,0)
-#define __syscall_cp4(n,a,b,c,d) (__syscall_cp)(n,__scc(a),__scc(b),__scc(c),__scc(d),0,0)
-#define __syscall_cp5(n,a,b,c,d,e) (__syscall_cp)(n,__scc(a),__scc(b),__scc(c),__scc(d),__scc(e),0)
-#define __syscall_cp6(n,a,b,c,d,e,f) (__syscall_cp)(n,__scc(a),__scc(b),__scc(c),__scc(d),__scc(e),__scc(f))
+#define __syscall_cp0(n) uk_syscall_6(n,0,0,0,0,0,0)
+#define __syscall_cp1(n,a) uk_syscall_6(n,__scc(a),0,0,0,0,0)
+#define __syscall_cp2(n,a,b) uk_syscall_6(n,__scc(a),__scc(b),0,0,0,0)
+#define __syscall_cp3(n,a,b,c) uk_syscall_6(n,__scc(a),__scc(b),__scc(c),0,0,0)
+#define __syscall_cp4(n,a,b,c,d) uk_syscall_6(n,__scc(a),__scc(b),__scc(c),__scc(d),0,0)
+#define __syscall_cp5(n,a,b,c,d,e) uk_syscall_6(n,__scc(a),__scc(b),__scc(c),__scc(d),__scc(e),0)
+#define __syscall_cp6(n,a,b,c,d,e,f) uk_syscall_6(n,__scc(a),__scc(b),__scc(c),__scc(d),__scc(e),__scc(f))
 
 #define __syscall_cp(...) __SYSCALL_DISP(__syscall_cp,__VA_ARGS__)
 #define syscall_cp(...) __syscall_ret(__syscall_cp(__VA_ARGS__))
@@ -374,15 +445,15 @@ static inline long __alt_socketcall(int sys, int sock, int cp, syscall_arg_t a, 
 #endif
 
 #ifdef SYS_open
-#define __sys_open2(x,pn,fl) __syscall2(SYS_open, pn, (fl)|O_LARGEFILE)
-#define __sys_open3(x,pn,fl,mo) __syscall3(SYS_open, pn, (fl)|O_LARGEFILE, mo)
-#define __sys_open_cp2(x,pn,fl) __syscall_cp2(SYS_open, pn, (fl)|O_LARGEFILE)
-#define __sys_open_cp3(x,pn,fl,mo) __syscall_cp3(SYS_open, pn, (fl)|O_LARGEFILE, mo)
+#define __sys_open2(x,pn,fl) uk_syscall_2(SYS_open, pn, (fl)|O_LARGEFILE)
+#define __sys_open3(x,pn,fl,mo) uk_syscall_3(SYS_open, pn, (fl)|O_LARGEFILE, mo)
+#define __sys_open_cp2(x,pn,fl) uk_syscall_2(SYS_open, pn, (fl)|O_LARGEFILE)
+#define __sys_open_cp3(x,pn,fl,mo) uk_syscall_3(SYS_open, pn, (fl)|O_LARGEFILE, mo)
 #else
-#define __sys_open2(x,pn,fl) __syscall3(SYS_openat, AT_FDCWD, pn, (fl)|O_LARGEFILE)
-#define __sys_open3(x,pn,fl,mo) __syscall4(SYS_openat, AT_FDCWD, pn, (fl)|O_LARGEFILE, mo)
-#define __sys_open_cp2(x,pn,fl) __syscall_cp3(SYS_openat, AT_FDCWD, pn, (fl)|O_LARGEFILE)
-#define __sys_open_cp3(x,pn,fl,mo) __syscall_cp4(SYS_openat, AT_FDCWD, pn, (fl)|O_LARGEFILE, mo)
+#define __sys_open2(x,pn,fl) uk_syscall_3(SYS_openat, AT_FDCWD, pn, (fl)|O_LARGEFILE)
+#define __sys_open3(x,pn,fl,mo) uk_syscall_4(SYS_openat, AT_FDCWD, pn, (fl)|O_LARGEFILE, mo)
+#define __sys_open_cp2(x,pn,fl) uk_syscall_3(SYS_openat, AT_FDCWD, pn, (fl)|O_LARGEFILE)
+#define __sys_open_cp3(x,pn,fl,mo) uk_syscall_4(SYS_openat, AT_FDCWD, pn, (fl)|O_LARGEFILE, mo)
 #endif
 
 #define __sys_open(...) __SYSCALL_DISP(__sys_open,,__VA_ARGS__)
